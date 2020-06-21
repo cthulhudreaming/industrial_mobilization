@@ -1,0 +1,110 @@
+---
+title: "surge"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(grid)
+library(tidyr)
+library(janitor)
+library(gganimate)
+
+# Reading in csv data
+
+surge_34 <- read.csv("Surge_Dataset_34.csv", 
+                     colClasses=c("Year"="character", 
+                                  "Investment.Type"="character")) %>% 
+  clean_names()
+
+```
+
+```{r creating_variables}
+
+current_no_anomalous <- surge_34 %>% 
+  filter(anomalous == 0, year == 2020) %>% 
+  select(c(year:agg_max_years))
+
+current_no_anomalous_nas <- current_no_anomalous %>% 
+  drop_na(adjusted_surge_rate_years)
+
+no_anomalous <- surge_34 %>% 
+  filter(anomalous == 0) %>% 
+  select(c(year:agg_max_years))
+
+no_anomalous_nas <- no_anomalous %>% 
+  drop_na(adjusted_surge_rate_years)
+
+all_mdaps_data <- surge_34 %>% 
+  filter(mdap == "MDAP",
+         anomalous == 0) %>% 
+  select(c(year:agg_max_years))
+
+all_mdaps_data$year <- as.integer(all_mdaps_data$year)
+
+current_mdaps_data <- surge_34 %>% 
+  filter(mdap == "MDAP",
+         anomalous == 0,
+         year == 2020) %>% 
+  select(c(year:agg_max_years))
+
+past_mdaps_data <- surge_34 %>% 
+  filter(mdap == "MDAP",
+         anomalous == 0,
+         year == 1999) %>% 
+  select(c(year:agg_max_years))
+
+current_non_mdaps_data <- surge_34 %>% 
+  filter(mdap == "Non-MDAP",
+         anomalous == 0,
+         year == 2020) %>% 
+  select(c(year:agg_max_years))
+
+current_non_mdaps_data_nas <- current_non_mdaps_data %>% 
+  drop_na(adjusted_surge_rate_years)
+
+```
+
+
+
+```{r graph_time}
+
+## Plot of 2020 MDAPs data at 1-8-5 rate
+
+ggplot(current_mdaps_data, aes(x = efficiency_production)) + 
+  geom_histogram(binwidth = 1.2,
+                 color = "black",
+                 fill = "dodgerblue1") +
+    scale_x_continuous(name = "Years to Replace Inventory", 
+                     breaks = seq(0,30, 5), 
+                     limits = (c(0,30))) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  ylab("Number of Programs") +
+  theme_classic()
+
+
+## Plot of all MDAPs data at 1-8-5
+
+all_mdaps_plot <- ggplot(all_mdaps_data, 
+                         aes(x = efficiency_production, fill = year)) +
+  geom_histogram(binwidth = 1.2) +
+    scale_x_continuous(name = "Years to Replace Inventory", 
+                     breaks = seq(0,30, 5), 
+                     limits = (c(0,30))) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  labs(y = "Number of Programs",
+       fill = "Year") +
+  theme_classic()
+
+all_mdaps_plot +
+  transition_states(year, wrap = FALSE) + 
+  guides(fill = FALSE)
+
+```
+
