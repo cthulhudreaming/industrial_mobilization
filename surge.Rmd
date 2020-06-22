@@ -15,6 +15,9 @@ library(grid)
 library(tidyr)
 library(janitor)
 library(gganimate)
+library(plotly)
+library(tidyverse)
+
 
 # Reading in csv data
 
@@ -47,6 +50,9 @@ all_mdaps_data <- surge_34 %>%
   select(c(year:agg_max_years))
 
 all_mdaps_data$year <- as.integer(all_mdaps_data$year)
+
+all_mdaps_data_nas <- all_mdaps_data %>% 
+  drop_na(adjusted_surge_rate_years)
 
 current_mdaps_data <- surge_34 %>% 
   filter(mdap == "MDAP",
@@ -88,7 +94,6 @@ ggplot(current_mdaps_data, aes(x = efficiency_production)) +
   ylab("Number of Programs") +
   theme_classic()
 
-
 ## Plot of all MDAPs data at 1-8-5
 
 all_mdaps_plot <- ggplot(all_mdaps_data, 
@@ -102,9 +107,31 @@ all_mdaps_plot <- ggplot(all_mdaps_data,
        fill = "Year") +
   theme_classic()
 
-all_mdaps_plot +
-  transition_states(year, wrap = FALSE) + 
-  guides(fill = FALSE)
+
+```
+
+```{r}
+
+group_old <- all_mdaps_data_nas %>% 
+  filter(year == 1999)
+
+group_new <- all_mdaps_data_nas %>% 
+  filter(year == 2020)
+
+fig_cool <- plot_ly(alpha = 0.6) %>% 
+  add_histogram(x = ~group_old$adjusted_surge_rate_years,
+                name = "1999") %>% 
+  add_histogram(x = ~group_new$adjusted_surge_rate_years,
+                name = "2020") %>% 
+  layout(barmode = "overlay",
+         title = "Time to replace MDAPs at adjusted surge rate",
+         xaxis = list(title = "Years to Replace Inventory",
+                      zeroline = FALSE),
+         yaxis = list(title = "Number of programs",
+                      zeroline = FALSE))
+
+
+fig_cool
 
 ```
 
