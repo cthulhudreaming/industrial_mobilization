@@ -3,7 +3,9 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
 
 library(tidyverse)
 library(plotly)
@@ -35,6 +37,17 @@ all_mdaps_x_nas <- all_mdaps_x %>%
 ```
 
 
+```{r smooth}
+
+smooth_plot <- ggplot(all_mdaps_x_nas, aes(x = adjusted_surge_rate_years, 
+                            group = year,
+                            fill = year)) +
+  geom_density(alpha = 0.5, stat = "bin")
+
+
+```
+
+
 ```{r ggplot}
 
 ggplot(all_mdaps_x_nas, aes(x = adjusted_surge_rate_years, fill = as_factor(year))) +
@@ -45,7 +58,8 @@ ggplot(all_mdaps_x_nas, aes(x = adjusted_surge_rate_years, fill = as_factor(year
        fill = "Year",
        x = "Years to Replace Inventory",
        y = "Number of Programs") +
-  theme_economist()
+  theme_economist() +
+  facet_wrap(~ year)
 
 
 ```
@@ -76,8 +90,6 @@ brittle <- plot_ly(alpha = 0.6) %>%
                       zeroline = FALSE),
          yaxis = list(title = "Number of programs",
                       zeroline = FALSE))
-
-brittle
 
 ```
 
