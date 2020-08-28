@@ -7,6 +7,7 @@ knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE,
                       warning = FALSE)
 
+
 library(tidyverse)
 library(plotly)
 library(janitor)
@@ -32,17 +33,9 @@ all_mdaps_x$adjusted_surge_rate_years <- round(all_mdaps_x$adjusted_surge_rate_y
 
 all_mdaps_x_nas <- all_mdaps_x %>% 
   drop_na(adjusted_surge_rate_years)
-
-my_theme <- function() {
-  theme_economist() +
-    theme(legend.position = "none")
-}
-
-
 ```
 
-
-```{r smooth}
+```{r ggplot}
 
 smooth_plot <- ggplot(all_mdaps_x_nas, aes(x = adjusted_surge_rate_years, 
                             group = as_factor(year),
@@ -63,51 +56,4 @@ smooth_plot
 
 
 ```
-
-
-```{r ggplot}
-
-ggplot(all_mdaps_x_nas, aes(x = adjusted_surge_rate_years, fill = as_factor(year))) +
-  geom_histogram(alpha = 0.6, position = 'identity', binwidth = 1.2) +
-  scale_x_continuous(breaks = seq(0,30, 5), 
-                     limits = (c(0,30))) +
-  labs(title = "Time to Replace MDAPs at Adjusted Surge Rate",
-       fill = "Year",
-       x = "Years to Replace Inventory",
-       y = "Number of Programs") +
-  theme_economist() +
-  facet_wrap(~ year)
-
-
-```
-
-
-```{r plotly}
-
-group_1999 <- all_mdaps_x_nas %>% 
-  filter(year == 1999)
-
-group_2008 <- all_mdaps_x_nas %>% 
-  filter(year == 2008)
-
-group_2020 <- all_mdaps_x_nas %>% 
-  filter(year == 2020)
-
-
-brittle <- plot_ly(alpha = 0.6) %>% 
-  add_histogram(x = ~group_1999$adjusted_surge_rate_years,
-                name = "1999") %>% 
-  add_histogram(x = ~group_2008$adjusted_surge_rate_years,
-                name = "2008") %>% 
-  add_histogram(x = ~group_2020$adjusted_surge_rate_years,
-                name = "2020") %>% 
-  layout(barmode = "overlay",
-         title = "Time to replace MDAPs at adjusted surge rate",
-         xaxis = list(title = "Years to Replace Inventory",
-                      zeroline = FALSE),
-         yaxis = list(title = "Number of programs",
-                      zeroline = FALSE))
-
-```
-
 
