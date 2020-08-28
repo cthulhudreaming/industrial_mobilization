@@ -33,10 +33,6 @@ all_mdaps_x$adjusted_surge_rate_years <- round(all_mdaps_x$adjusted_surge_rate_y
 all_mdaps_x_nas <- all_mdaps_x %>% 
   drop_na(adjusted_surge_rate_years)
 
-my_theme <- function() {
-  theme_economist() +
-    theme(legend.position = "none")
-}
 
 
 ```
