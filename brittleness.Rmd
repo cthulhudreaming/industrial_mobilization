@@ -16,6 +16,7 @@ library(gganimate)
 library(tidyr)
 library(readxl)
 library(RColorBrewer)
+library(scales)
 
 surge_all <- read_excel("surge_dataset_v9r.xlsx") %>% 
   clean_names()
@@ -31,9 +32,7 @@ all_mdaps_x$adjusted_surge_rate_years <- as.numeric(all_mdaps_x$adjusted_surge_r
 all_mdaps_x$adjusted_surge_rate_years <- round(all_mdaps_x$adjusted_surge_rate_years, digits = 2)
 
 all_mdaps_x_nas <- all_mdaps_x %>% 
-  drop_na(adjusted_surge_rate_years)
-
-
+  drop_na(adjusted_surge_rate_years) 
 
 ```
 
@@ -54,9 +53,6 @@ smooth_plot <- ggplot(all_mdaps_x_nas, aes(x = adjusted_surge_rate_years,
   scale_color_manual(values = c("1999", "2008", "2020"),
                      labels = c("1999", "2008", "2020")) +
   theme_economist()
-
-smooth_plot
-
 
 ```
 
@@ -105,5 +101,25 @@ brittle <- plot_ly(alpha = 0.6) %>%
                       zeroline = FALSE))
 
 ```
+
+```{r density}
+
+density_plot <- ggplot(all_mdaps_x_nas, aes(x = adjusted_surge_rate_years,
+                                            group = as_factor(year),
+                                            fill = as_factor(year))) +
+  geom_density(alpha = 0.5) +
+  scale_x_continuous(name = "Years to Replace Inventory", 
+                     breaks = seq(0,30, 5), 
+                     limits = (c(0,30))) +
+  theme(plot.title = element_text(hjust = .5)) + 
+  labs(y = "Proportion of Programs",
+       fill = "Year") +
+  theme_economist()
+
+density_plot
+
+
+```
+
 
 

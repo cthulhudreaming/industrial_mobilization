@@ -1,0 +1,54 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE)
+
+library(tidyverse)
+library(plotly)
+library(janitor)
+library(ggthemes)
+library(ggplot2)
+library(gganimate)
+library(tidyr)
+library(readxl)
+library(RColorBrewer)
+library(scales)
+
+surge_all <- read_excel("surge_dataset_v9r.xlsx") %>% 
+  clean_names()
+
+
+all_mdaps_x <- surge_all %>% 
+  filter(mdap == "MDAP",
+         anomalous == 0) %>% 
+  select(c(year:agg_max_years))
+
+all_mdaps_x$year <- as.integer(all_mdaps_x$year)
+all_mdaps_x$adjusted_surge_rate_years <- as.numeric(all_mdaps_x$adjusted_surge_rate_years)
+all_mdaps_x$adjusted_surge_rate_years <- round(all_mdaps_x$adjusted_surge_rate_years, digits = 2)
+
+all_mdaps_x_nas <- all_mdaps_x %>% 
+  drop_na(adjusted_surge_rate_years) 
+```
+
+
+```{r}
+
+ggplot(all_mdaps_x_nas, aes(x = adjusted_surge_rate_years, 
+                            fill = as_factor(year))) +
+  geom_histogram(alpha = 0.6, position = 'identity', binwidth = 1.2) +
+  geom_density(aes(y=..density..*70), alpha = 0.2) +
+  scale_x_continuous(breaks = seq(0,30, 5), 
+                     limits = (c(0,30))) +
+  labs(title = "Time to Replace MDAPs at Adjusted Surge Rate",
+       fill = "Year",
+       x = "Years to Replace Inventory",
+       y = "Number of Programs") +
+  theme_economist() +
+  facet_wrap(~ year) 
+
+```
+

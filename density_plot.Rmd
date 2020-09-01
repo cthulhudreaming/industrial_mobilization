@@ -1,0 +1,57 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE)
+
+
+library(tidyverse)
+library(plotly)
+library(janitor)
+library(ggthemes)
+library(ggplot2)
+library(gganimate)
+library(tidyr)
+library(readxl)
+library(RColorBrewer)
+library(scales)
+
+surge_all <- read_excel("surge_dataset_v9r.xlsx") %>% 
+  clean_names()
+
+
+all_mdaps_x <- surge_all %>% 
+  filter(mdap == "MDAP",
+         anomalous == 0) %>% 
+  select(c(year:agg_max_years))
+
+all_mdaps_x$year <- as.integer(all_mdaps_x$year)
+all_mdaps_x$adjusted_surge_rate_years <- as.numeric(all_mdaps_x$adjusted_surge_rate_years)
+all_mdaps_x$adjusted_surge_rate_years <- round(all_mdaps_x$adjusted_surge_rate_years, digits = 2)
+
+all_mdaps_x_nas <- all_mdaps_x %>% 
+  drop_na(adjusted_surge_rate_years) 
+```
+
+```{r}
+
+density_plot <- ggplot(all_mdaps_x_nas, aes(x = adjusted_surge_rate_years,
+                                            group = as_factor(year),
+                                            fill = as_factor(year))) +
+  geom_density(alpha = 0.5) +
+  scale_x_continuous(name = "Years to Replace Inventory", 
+                     breaks = seq(0,30, 5), 
+                     limits = (c(0,30))) +
+  theme(plot.title = element_text(hjust = .5)) + 
+  labs(y = "Proportion of Programs",
+       fill = "Year",
+       title = "Time to Replace Inventory at Adjusted Surge Rate") +
+  theme_economist()
+
+density_plot
+
+
+```
+
